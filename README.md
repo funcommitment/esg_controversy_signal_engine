@@ -162,7 +162,7 @@ esg_controversy_signal_engine/
 - Long articles chunked into **~400-word segments**, sentiment averaged across chunks
 - Output labels: `positive`, `neutral`, `negative` with confidence score per chunk
 - **Runtime:** ~2-3 minutes for 81 articles on CPU
-- **Known limitation:** FinBERT trained on general financial news — "net-zero pledges" may score as positive business language. Measured ENV-sentiment correlation: **+0.389** (documented bias)
+- **Known limitation:** FinBERT trained on general financial news — effectively detects **governance negatives** (lawsuits, fines, penalties = financial language ✅) but underperforms on **environmental and social negatives** (ecological harm, displacement, health impacts = non-financial language ❌). This is the root cause of the observed 35% neutral rate despite articles being genuine controversies. Measured ENV-sentiment correlation: **+0.389** (documented bias)
 
 ### 4. Final Risk Scoring Formula
 
@@ -267,7 +267,7 @@ streamlit run app.py
 | Limitation | Impact | Suggested Fix |
 |-----------|--------|---------------|
 | Manual URL curation | Not scalable | Google News RSS / NewsAPI automation |
-| FinBERT not ESG-specific | +0.389 ENV bias | Fine-tune on labeled ESG corpus |
+| FinBERT not ESG-specific | Detects monetary negatives (fines, lawsuits) well but misses environmental/social harm language (spills, displacement, health impacts) as neutral — causing 35% neutral rate in a controversy dataset | Fine-tune on ESG-labeled corpus |
 | No keyword tagging ground truth | Can't report precision/recall | Manual annotation of sample articles |
 | Static dataset | No live updates | Scheduled scraping pipeline |
 | JS-rendered pages missed | ~2 articles lost | Selenium integration |
