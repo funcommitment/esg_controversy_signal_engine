@@ -2,7 +2,7 @@
 
 > **An NLP-based decision-support system that automatically detects, scores, and summarizes ESG-related controversy signals for Oil & Gas companies from public text sources — flagging events with confidence scores for analyst review.**
 
-![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=flat&logo=streamlit&logoColor=white)
 ![FinBERT](https://img.shields.io/badge/NLP-FinBERT-orange?style=flat)
 ![Status](https://img.shields.io/badge/Status-Internship%20Prototype-green?style=flat)
@@ -27,52 +27,54 @@ This project is an **internship-level prototype** that simulates an early-warnin
 
 The system ingests URLs from public news sources, scrapes article text, applies **keyword-based ESG tagging**, runs **FinBERT sentiment analysis**, and produces a **ranked ESG risk score** per company — combining controversy severity, article volume, and sentiment negativity.
 
+**Target Users:** ESG analysts, sustainable investment funds, and portfolio risk teams who need a fast, automated first-pass screen of Oil & Gas company controversy exposure before deeper due diligence.
+
 ---
 
 ## 🏗️ System Architecture
 
 ```
-URLs (esg_links.txt)
+URLs (urls.txt)
         │
         ▼
 ┌─────────────────┐
-│  01_ingestion   │  → Parse URLs → esg_articles_raw.csv
+│  ingestion.py   │  → Parse URLs → esg.csv
 └─────────────────┘
         │
         ▼
 ┌─────────────────┐
-│  02_extraction  │  → Scrape text + dates → esg_articles_with_text.csv
+│  extraction.py  │  → Scrape text + dates → esg_articles_with_text.csv
 └─────────────────┘     (requests + BeautifulSoup + archive.org fallback)
         │
         ▼
-┌─────────────────┐
-│  03_cleaning    │  → Filter + validate → esg_articles_cleaned.csv
-└─────────────────┘     (min 200 chars + company mention check)
+┌──────────────────────┐
+│  clean_and_filter.py │  → Filter + validate → esg_articles_cleaned.csv
+└──────────────────────┘     (min 200 chars + company mention check)
         │
         ▼
 ┌─────────────────┐
-│  04_esg_tagger  │  → ENV / SOCIAL / GOV keyword scoring → esg_articles_tagged.csv
+│  esg_label.py   │  → ENV / SOCIAL / GOV keyword scoring → esg_articles_tagged.csv
 └─────────────────┘
         │
         ▼
-┌─────────────────┐
-│  05_sentiment   │  → FinBERT analysis → esg_articles_final.csv
-└─────────────────┘                     → esg_company_sentiment.csv
+┌──────────────────┐
+│ esg_sentiment.py │  → FinBERT analysis → esg_articles_final.csv
+└──────────────────┘                     → esg_company_sentiment.csv
+        │
+        ▼
+┌────────────────────────┐
+│ esg_risk_aggregation.py│  → Company-level risk scores → esg_company_scores.csv
+└────────────────────────┘
         │
         ▼
 ┌─────────────────┐
-│  06_aggregator  │  → Company-level risk scores → esg_company_scores.csv
+│  esg_visual.py  │  → Matplotlib charts → esg_risk_analysis.png
 └─────────────────┘
         │
         ▼
-┌─────────────────┐
-│  07_visualizer  │  → Matplotlib charts → esg_risk_analysis.png
-└─────────────────┘
-        │
-        ▼
-┌─────────────────┐
-│  app.py         │  → Streamlit interactive dashboard (5 tabs)
-└─────────────────┘
+┌──────────────────┐
+│ streamlit_esg.py │  → Streamlit interactive dashboard (5 tabs)
+└──────────────────┘
 ```
 
 ---
@@ -82,27 +84,26 @@ URLs (esg_links.txt)
 ```
 esg_controversy_signal_engine/
 │
-├── 📄 esg_links.txt                    # Input: company,URL pairs (99 entries)
+├── 📄 urls.txt                         # Input: company,URL pairs (99 entries)
+├── 🐍 ingestion.py                     # Parse URLs → raw CSV
+├── 🐍 extraction.py                    # Scrape articles (requests + BS4)
+├── 🐍 clean_and_filter.py              # Clean + filter articles
+├── 🐍 esg_label.py                     # ESG keyword scoring + multi-label
+├── 🐍 esg_sentiment.py                 # FinBERT sentiment + validation
+├── 🐍 esg_risk_aggregation.py          # Company-level risk aggregation
+├── 🐍 esg_visual.py                    # Matplotlib visualizations
+├── 🐍 streamlit_esg.py                 # Streamlit dashboard (5 tabs)
 │
-├── 🐍 01_ingestion.py                  # Parse URLs → raw CSV
-├── 🐍 02_extraction.py                 # Scrape articles (requests + BS4)
-├── 🐍 03_cleaning.py                   # Clean + filter articles
-├── 🐍 04_esg_tagger.py                 # ESG keyword scoring + multi-label
-├── 🐍 05_sentiment.py                  # FinBERT sentiment + validation
-├── 🐍 06_aggregator.py                 # Company-level risk aggregation
-├── 🐍 07_visualizer.py                 # Matplotlib visualizations
-├── 🐍 app.py                           # Streamlit dashboard (5 tabs)
+├── 📊 esg.csv                          # After ingestion
+├── 📊 esg_articles_with_text.csv       # After scraping
+├── 📊 esg_articles_cleaned.csv         # After cleaning (81 articles)
+├── 📊 esg_articles_tagged.csv          # After ESG tagging
+├── 📊 esg_articles_final.csv           # After sentiment analysis
+├── 📊 esg_company_sentiment.csv        # Company sentiment summary
+├── 📊 esg_company_scores.csv           # Final risk rankings
+├── 📊 removed_articles_company_filter.csv  # Articles removed during filtering
 │
-├── 📊 data/
-│   ├── esg_articles_raw.csv
-│   ├── esg_articles_with_text.csv
-│   ├── esg_articles_cleaned.csv        # 81 articles after filtering
-│   ├── esg_articles_tagged.csv
-│   ├── esg_articles_final.csv
-│   ├── esg_company_sentiment.csv
-│   └── esg_company_scores.csv          # Final risk rankings
-│
-├── 📈 esg_risk_analysis.png
+├── 📈 esg_risk_analysis.png            # Output visualization
 ├── 📄 requirements.txt
 └── 📄 README.md
 ```
@@ -137,11 +138,17 @@ esg_controversy_signal_engine/
 ## 🔬 Methodology
 
 ### 1. Data Collection
-- **Manual URL curation** from public sources: Guardian, BBC, NPR, CNBC, Reuters (archive.org fallback), AP, Al Jazeera
+
+- **Controversy discovery:** Initial ESG events identified using Wikipedia "Controversies" sections for each company to locate major known incidents
+- **Article sourcing:** News articles then manually sourced from credible outlets (Guardian, Reuters, BBC, AP, CNBC, NPR, Al Jazeera) to obtain full textual evidence
 - `requests` + `BeautifulSoup` scraping with **7-second polite delays** between requests
 - `archive.org` used as fallback to recover blocked/dead Reuters URLs
 - **86/99 articles successfully scraped (87% success rate)**
 - Failures breakdown: 5 paywalled sites (NYT/WSJ/Economist — 403/401), 2 JS-rendered pages (0 chars), 1 timeout
+
+> **Dataset note:** The dataset is **intentionally controversy-focused**, not a random or balanced sample of company news. Some companies (e.g., Eni, Sinopec) have fewer articles due to limited publicly archived controversy coverage in English-language sources.
+
+> **Manual intervention note:** For ExxonMobil, 2 articles referred to the company as "Exxon" rather than "ExxonMobil" and were flagged for removal by the company-mention filter. For PetroChina, 3 articles referenced the company via broader terms ("Chinese oil giant", "China chemical industry") without naming it directly — but were clearly about PetroChina based on context. Both cases were manually passed through the filter to maintain dataset usability. This intervention affected only the filtering stage and does **not** affect any scoring logic.
 
 ### 2. ESG Keyword Tagging (Rule-Based)
 
@@ -224,30 +231,18 @@ cd esg_controversy_signal_engine
 # 2. Install
 pip install -r requirements.txt
 
-# 3. Run pipeline
-python 01_ingestion.py
-python 02_extraction.py
-python 03_cleaning.py
-python 04_esg_tagger.py
-python 05_sentiment.py       # Downloads FinBERT ~500MB on first run
-python 06_aggregator.py
-python 07_visualizer.py
+# 3. Run pipeline in order
+python ingestion.py
+python extraction.py
+python clean_and_filter.py
+python esg_label.py
+python esg_sentiment.py          # Downloads FinBERT ~500MB on first run
+python esg_risk_aggregation.py
+python esg_visual.py
 
 # 4. Launch dashboard
-streamlit run app.py
+streamlit run streamlit_esg.py
 ```
-
-### Approximate Runtime (CPU)
-
-| Step | Approx Time |
-|------|-------------|
-| Ingestion | < 5 sec |
-| Scraping (86 URLs × 7s delay) | ~10 min |
-| Cleaning + Tagging | < 15 sec |
-| Sentiment (81 articles, CPU) | ~2–3 min |
-| Aggregation + Visualization | < 10 sec |
-| **Total** | **~13–15 min** |
-
 ---
 
 ## 📦 Dependencies
@@ -290,7 +285,3 @@ streamlit run app.py
 Internship-level prototype using historical public data. **Not for investment decisions or production ESG reporting.** Results are demonstration signals for analyst review only.
 
 ---
-
-## 📄 License
-
-MIT License — free to use for educational and research purposes.
