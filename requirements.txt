@@ -3,6 +3,5 @@ numpy
 requests
 beautifulsoup4
 matplotlib
-transformers
-torch
-streamlit
+streamlit==1.28.0
+altair==4.2.2
