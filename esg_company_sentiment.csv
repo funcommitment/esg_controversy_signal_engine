@@ -1,0 +1,11 @@
+company,avg_sentiment,negative_articles,positive_articles,neutral_articles
+BP,-0.4503,9,0,6
+Chevron,-0.4152,12,1,5
+Eni,-0.0846,0,0,3
+ExxonMobil,-0.318,5,0,6
+Gazprom,-0.3932,7,0,3
+Marathon Petroleum,-0.496,2,0,0
+Occidental Petroleum,-0.7308,1,0,0
+PetroChina,-0.5354,4,0,1
+Sinopec,-0.5986,1,0,1
+shell,-0.4105,10,1,3
