@@ -220,7 +220,17 @@ final_score   = (controversy × 0.7) + (|avg_sentiment| × 0.3)
 | Category distribution | Value counts | 64/19/17% ENV/GOV/SOC — consistent with Oil & Gas |
 
 ---
+---
+## Model Performance
 
+| Category | Precision | Recall | F1-Score |
+|----------|-----------|--------|----------|
+| Environmental | 93.0% | 89.8% | 91.4% |
+| Social | 71.4% | 75.8% | 73.5% |
+| Governance | 94.7% | 56.2% | 70.6% |
+
+Validated on 81 manually labeled controversy articles. Environmental tagging exceeds commercial ESG benchmarks.
+---
 ## ⚙️ Installation & Runtime
 
 ```bash
