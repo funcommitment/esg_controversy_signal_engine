@@ -220,7 +220,6 @@ final_score   = (controversy × 0.7) + (|avg_sentiment| × 0.3)
 | Category distribution | Value counts | 64/19/17% ENV/GOV/SOC — consistent with Oil & Gas |
 
 ---
----
 ## Model Performance
 
 | Category | Precision | Recall | F1-Score |
